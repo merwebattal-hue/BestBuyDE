@@ -1,28 +1,30 @@
-from product import Product
+from typing import List, Tuple
+from products import Product
 
 
 class Store:
-    def __init__(self, name: str):
-        self.name = name
-        self.products: list[Product] = []
+    def __init__(self, products: List[Product]):
+        self.products = products
 
-    def add_product(self, product: Product) -> None:
+    def add_product(self, product: Product):
         self.products.append(product)
 
-    def list_products(self) -> str:
-        if not self.products:
-            return "No products available."
-        lines = []
-        for i, product in enumerate(self.products, start=1):
-            lines.append(
-                f"{i}. {product.name} - {product.price:.2f} EUR (qty: {product.quantity})"
-            )
-        return "\n".join(lines)
+    def remove_product(self, product: Product):
+        if product in self.products:
+            self.products.remove(product)
 
-    def order(self, product_number: int) -> str:
-        if product_number < 1 or product_number > len(self.products):
-            return "Invalid product number."
-        product = self.products[product_number - 1]
-        if product.buy():
-            return f"Order confirmed: {product.name}"
-        return f"Out of stock: {product.name}"
+    def get_total_quantity(self) -> int:
+        return sum(p.get_quantity() for p in self.products)
+
+    def get_all_products(self) -> List[Product]:
+        return [p for p in self.products if p.is_active()]
+
+    def order(self, shopping_list: List[Tuple[Product, int]]) -> float:
+        total_cost = 0.0
+
+        for product, qty in shopping_list:
+            # buy() zaten hatalı durumda exception fırlatıyor (yetersiz stok, qty<=0 vb.)
+            total_cost += product.buy(qty)
+
+        return total_cost
+
