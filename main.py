@@ -1,45 +1,78 @@
-from product import Product
-from store import Store
+import products
+import store
 
 
-def seed_store() -> Store:
-    store = Store("BestBuyDE")
-    store.add_product(Product("Laptop", 999.99, 3))
-    store.add_product(Product("Mouse", 24.99, 10))
-    store.add_product(Product("Keyboard", 79.99, 5))
-    return store
-
-
-def main() -> None:
-    store = seed_store()
-
+def start(best_buy: store.Store) -> None:
     while True:
         print("\n=== BestBuyDE ===")
-        print("1) List products")
-        print("2) Order product")
-        print("3) Exit")
+        print("1) List all products in store")
+        print("2) Show total amount in store")
+        print("3) Make an order")
+        print("4) Quit")
 
         choice = input("Select an option: ").strip()
 
         if choice == "1":
+            active_products = best_buy.get_all_products()
+            if not active_products:
+                print("No active products available.")
+                continue
+
             print("\nProducts:")
-            print(store.list_products())
+            for p in active_products:
+                # Product sınıfında show() varsa en doğru kullanım bu:
+                p.show()
 
         elif choice == "2":
-            print("\nProducts:")
-            print(store.list_products())
-            selection = input("Enter product number: ").strip()
-            if not selection.isdigit():
-                print("Please enter a valid number.")
-                continue
-            print(store.order(int(selection)))
+            print(f"Total quantity in store: {best_buy.get_total_quantity()}")
 
         elif choice == "3":
+            active_products = best_buy.get_all_products()
+            if not active_products:
+                print("No active products available.")
+                continue
+
+            print("\nProducts:")
+            for i, p in enumerate(active_products, start=1):
+                print(f"{i}. {p.name} (Price: {p.price}, Qty: {p.get_quantity()})")
+
+            selection = input("Enter product number: ").strip()
+            qty = input("Enter quantity: ").strip()
+
+            if not selection.isdigit() or not qty.isdigit():
+                print("Please enter valid numbers.")
+                continue
+
+            idx = int(selection) - 1
+            qty_int = int(qty)
+
+            if idx < 0 or idx >= len(active_products):
+                print("Invalid product number.")
+                continue
+
+            try:
+                total = best_buy.order([(active_products[idx], qty_int)])
+                print(f"Order confirmed. Total: {total}")
+            except Exception as e:
+                print(f"Order failed: {e}")
+
+        elif choice == "4":
             print("Goodbye!")
             break
 
         else:
             print("Invalid option. Try again.")
+
+
+def main() -> None:
+    # setup initial stock of inventory
+    product_list = [
+        products.Product("MacBook Air M2", price=1450, quantity=100),
+        products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+        products.Product("Google Pixel 7", price=500, quantity=250),
+    ]
+    best_buy = store.Store(product_list)
+    start(best_buy)
 
 
 if __name__ == "__main__":
