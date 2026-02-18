@@ -1,8 +1,11 @@
+"""CLI entry point for the BestBuyDE store application."""
+
 import products
 import store
 
 
 def start(best_buy: store.Store) -> None:
+    """Run the interactive CLI menu for a given store instance."""
     while True:
         print("\n=== BestBuyDE ===")
         print("1) List all products in store")
@@ -19,9 +22,8 @@ def start(best_buy: store.Store) -> None:
                 continue
 
             print("\nProducts:")
-            for p in active_products:
-                # Product sınıfında show() varsa en doğru kullanım bu:
-                p.show()
+            for product in active_products:
+                product.show()
 
         elif choice == "2":
             print(f"Total quantity in store: {best_buy.get_total_quantity()}")
@@ -33,8 +35,11 @@ def start(best_buy: store.Store) -> None:
                 continue
 
             print("\nProducts:")
-            for i, p in enumerate(active_products, start=1):
-                print(f"{i}. {p.name} (Price: {p.price}, Qty: {p.get_quantity()})")
+            for index, product in enumerate(active_products, start=1):
+                print(
+                    f"{index}. {product.name} "
+                    f"(Price: {product.price}, Qty: {product.get_quantity()})"
+                )
 
             selection = input("Enter product number: ").strip()
             qty = input("Enter quantity: ").strip()
@@ -53,8 +58,8 @@ def start(best_buy: store.Store) -> None:
             try:
                 total = best_buy.order([(active_products[idx], qty_int)])
                 print(f"Order confirmed. Total: {total}")
-            except Exception as e:
-                print(f"Order failed: {e}")
+            except ValueError as exc:
+                print(f"Order failed: {exc}")
 
         elif choice == "4":
             print("Goodbye!")
@@ -65,7 +70,7 @@ def start(best_buy: store.Store) -> None:
 
 
 def main() -> None:
-    # setup initial stock of inventory
+    """Create initial inventory and start the CLI."""
     product_list = [
         products.Product("MacBook Air M2", price=1450, quantity=100),
         products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
